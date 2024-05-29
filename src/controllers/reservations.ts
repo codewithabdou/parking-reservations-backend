@@ -7,6 +7,7 @@ import {
 } from "../db/reservations";
 import { getDriverById } from "../db/drivers";
 import { getParkingById } from "../db/parkings";
+import { compareDates, formatDate } from "../helpers";
 
 const handleServerError = (res: express.Response, err: any) => {
   console.log(err);
@@ -64,16 +65,33 @@ export const createNewReservation = async (
   res: express.Response
 ) => {
   try {
-    const { parkingId, driverId, startTime, endTime } = req.body;
-    const reservation = await createReservation({
-      parkingId,
-      driverId,
-      startTime,
-      endTime,
-    });
+    const { parkingId, driverId, startDate, endDate } = req.body;
+
+    const validDates = compareDates(startDate, endDate);
+
+    if (validDates !== -1) {
+      return res
+        .status(400)
+        .send({
+          status: "error",
+          message: "Invalid dates",
+        })
+        .end();
+    }
 
     const driver = await getDriverById(driverId);
     const parking = await getParkingById(parkingId);
+
+    if (parking.freePlaces <= 0) {
+      return res
+        .status(400)
+        .send({
+          status: "error",
+          message: "No free places in this parking",
+        })
+        .end();
+    }
+
     if (!driver || !parking) {
       return res
         .status(404)
@@ -83,11 +101,31 @@ export const createNewReservation = async (
         })
         .end();
     }
-
-    res.status(201).send({
-      status: "success",
-      data: reservation,
+    const data = await createReservation({
+      parkingId,
+      driverId,
+      startDate,
+      endDate,
     });
+
+    const formattedStartDate = formatDate(data.startDate);
+    const formattedEndDate = formatDate(data.endDate);
+
+    const reservation = {
+      id: data._id,
+      parkingId: data.parkingId,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      parkingName: parking.name,
+      parkingPhotoUrl: parking.photoUrl,
+      parkingAddress: parking.address,
+      userId: driverId,
+    };
+
+    parking.freePlaces -= 1;
+    await parking.save();
+
+    res.status(201).send(reservation);
   } catch (error) {
     handleServerError(res, error);
   }

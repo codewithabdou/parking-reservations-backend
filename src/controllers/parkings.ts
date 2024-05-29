@@ -17,11 +17,25 @@ export const getAllParkings = async (
   res: express.Response
 ) => {
   try {
-    const parkings = await getParkings();
-    res.status(200).send({
-      status: "success",
-      data: parkings,
+    const data = await getParkings();
+
+    const parkings = data.map((parking) => {
+      return {
+        id: parking._id,
+        name: parking.name,
+        address: parking.address,
+        latitude: parking.latitude,
+        longitude: parking.longitude,
+        totalPlaces: parking.totalPlaces,
+        freePlaces: parking.freePlaces,
+        price: parking.price,
+        rating: parking.rating,
+        photoUrl: parking.photoUrl,
+        description: parking.description,
+      };
     });
+
+    res.status(200).send(parkings);
   } catch (err) {
     handleServerError(res, err);
   }
@@ -32,7 +46,20 @@ export const getSingleParking = async (
   res: express.Response
 ) => {
   try {
-    const parking = await getParkingById(req.params.id);
+    const data = await getParkingById(req.params.id);
+    const parking = {
+      id: data._id,
+      name: data.name,
+      address: data.address,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      totalPlaces: data.totalPlaces,
+      freePlaces: data.freePlaces,
+      price: data.price,
+      rating: data.rating,
+      photoUrl: data.photoUrl,
+      description: data.description,
+    };
     if (!parking) {
       return res
         .status(404)
@@ -42,10 +69,7 @@ export const getSingleParking = async (
         })
         .end();
     }
-    res.status(200).send({
-      status: "success",
-      data: parking,
-    });
+    res.status(200).send(parking);
   } catch (err) {
     handleServerError(res, err);
   }

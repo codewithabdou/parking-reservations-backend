@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const ReservationSchema = new mongoose.Schema({
   parkingId: { type: mongoose.Schema.Types.ObjectId, required: true },
   driverId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  startTime: { type: Date, required: true },
-  endTime: { type: Date, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
 });
 
 export const ReservationModel = mongoose.model(

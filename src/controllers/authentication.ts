@@ -20,8 +20,8 @@ const handleServerError = (res: express.Response, err: any) => {
 
 export const register = async (req: express.Request, res: express.Response) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    const { fullName, email, password } = req.body;
+    if (!fullName || !email || !password) {
       return res
         .status(400)
         .send({
@@ -42,7 +42,7 @@ export const register = async (req: express.Request, res: express.Response) => {
         .end();
     }
 
-    const driverUsernameVerification = await getDriverByUsername(username);
+    const driverUsernameVerification = await getDriverByUsername(fullName);
     if (driverUsernameVerification) {
       return res
         .status(400)
@@ -68,7 +68,7 @@ export const register = async (req: express.Request, res: express.Response) => {
     const salt = random();
     const hashedPassword = authentication(password, salt);
     const driver = await createDriver({
-      username,
+      username: fullName,
       email,
       authentication: {
         hashedPassword,
@@ -81,7 +81,7 @@ export const register = async (req: express.Request, res: express.Response) => {
       .json({
         driver: {
           id: driver._id.toString(),
-          username: driver.username,
+          fullName: driver.username,
           email: driver.email,
           createdAt: driver.createdAt,
         },
@@ -94,8 +94,8 @@ export const register = async (req: express.Request, res: express.Response) => {
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
-    const { emailOrUsername, password } = req.body;
-    if (!emailOrUsername || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return res
         .status(400)
         .send({
@@ -105,13 +105,9 @@ export const login = async (req: express.Request, res: express.Response) => {
         .end();
     }
 
-    const driver =
-      (await getDriverByEmail(emailOrUsername).select(
-        "+authentication.hashedPassword +authentication.salt +authentication.sessionToken"
-      )) ||
-      (await getDriverByUsername(emailOrUsername).select(
-        "+authentication.hashedPassword +authentication.salt +authentication.sessionToken"
-      ));
+    const driver = await getDriverByEmail(email).select(
+      "+authentication.hashedPassword +authentication.salt +authentication.sessionToken"
+    );
     if (!driver) {
       return res
         .status(404)
@@ -140,15 +136,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     res
       .status(200)
-      .send({
-        sessionToken,
-        driver: {
-          id: driver._id.toString(),
-          username: driver.username,
-          email: driver.email,
-          createdAt: driver.createdAt,
-        },
-      })
+      .send({ token: sessionToken, id: driver._id.toString() })
       .end();
   } catch (err) {
     handleServerError(res, err);
