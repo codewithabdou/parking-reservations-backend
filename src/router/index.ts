@@ -9,6 +9,7 @@ import createParking from "./createParking";
 import getReservationsByUserId from "./getReservationsByUserId";
 import getReservationById from "./getReservationById";
 import createReservation from "./createReservation";
+import createToken from "./createToken";
 
 const router = express.Router();
 
@@ -22,6 +23,8 @@ export default (): express.Router => {
   getReservationsByUserId(router);
   getReservationById(router);
   createReservation(router);
+  createToken(router);
+
   router.get("/", (_, res) => {
     res.send("Parking Reservations API is running!");
   });

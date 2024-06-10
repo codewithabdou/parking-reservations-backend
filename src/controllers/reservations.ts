@@ -4,6 +4,7 @@ import {
   getReservationsByUserId,
   getReservationById,
   createReservation,
+  getReservations,
 } from "../db/reservations";
 import { getDriverById } from "../db/drivers";
 import { getParkingById } from "../db/parkings";

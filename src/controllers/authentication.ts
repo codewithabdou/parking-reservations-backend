@@ -132,6 +132,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     const salt = random();
     const sessionToken = authentication(salt, driver._id.toString());
     driver.authentication.sessionToken = sessionToken;
+
     await driver.save();
 
     res
