@@ -5,6 +5,7 @@ const ReservationSchema = new mongoose.Schema({
   driverId: { type: mongoose.Schema.Types.ObjectId, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  notificationSent: { type: Boolean, default: false },
 });
 
 export const ReservationModel = mongoose.model(

@@ -48,13 +48,19 @@ export const checkAndSendNotifications = async () => {
         const reservationDate = new Date(reservation.startDate);
         const diff = reservationDate.getTime() - now.getTime();
         const minutes = Math.floor(diff / 1000 / 60);
-        if (minutes <= 10 && minutes >= 0) {
+        if (
+          minutes <= 10 &&
+          minutes >= 0 &&
+          reservation.notificationSent === false
+        ) {
           const parking: any = await getParkingById(reservation.parkingId);
           sendNotification({
             token: token.token,
             title: "Reservation reminder",
             body: `Your reservation at ${parking.name} is about to start`,
           });
+          reservation.notificationSent = true;
+          await reservation.save();
         }
       });
     }

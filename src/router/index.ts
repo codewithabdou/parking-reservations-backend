@@ -10,6 +10,7 @@ import getReservationsByUserId from "./getReservationsByUserId";
 import getReservationById from "./getReservationById";
 import createReservation from "./createReservation";
 import createToken from "./createToken";
+import googleAuth from "./googleAuth";
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ export default (): express.Router => {
   getReservationById(router);
   createReservation(router);
   createToken(router);
+  googleAuth(router);
 
   router.get("/", (_, res) => {
     res.send("Parking Reservations API is running!");

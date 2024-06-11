@@ -7,7 +7,15 @@ import compression from "compression";
 import mongoose from "mongoose";
 import router from "./router";
 import { checkAndSendNotifications } from "./controllers/notifications";
+import { getDriverByEmail } from "./db/drivers";
+import { login, register } from "./controllers/authentication";
 const cron = require("node-cron");
+const { OAuth2Client } = require("google-auth-library");
+
+const GOOGLE_CLIENT_ID =
+  "868166821322-q3qeajtaosbno62in98kqa715jf9fac2.apps.googleusercontent.com";
+
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 var admin = require("firebase-admin");
 var serviceAccount = require("../parking-reservations-3b96b-firebase-adminsdk-pl7gp-d7908cbd01.json");
